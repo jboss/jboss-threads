@@ -7,7 +7,7 @@ class VersionLogging {
 
     static Boolean shouldLogVersion() {
         try {
-            return Boolean.valueOf(System.getProperty("jboss.log-version", "true"));
+            return Boolean.valueOf(System.getProperty("jboss.log-version", "false"));
         } catch (Throwable ignored) {
             return Boolean.FALSE;
         }
