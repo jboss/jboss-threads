@@ -36,7 +36,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>49</version>
+        <version>50</version>
     </parent>
 
     <issueManagement>
@@ -71,6 +71,8 @@
 
         <nexus.url>https://repository.jboss.org/nexus3</nexus.url>
         <nexus.repo>jboss-common</nexus.repo>
+
+        <maven.compiler.release>17</maven.compiler.release>
     </properties>
 
     <dependencyManagement>
