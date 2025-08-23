@@ -185,19 +185,55 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <annotationProcessorPath>
-                            <groupId>org.jboss.logging</groupId>
-                            <artifactId>jboss-logging-processor</artifactId>
-                            <version>${version.jboss.logging.tools}</version>
-                        </annotationProcessorPath>
-                    </annotationProcessorPaths>
-                    <compilerArgs>
-                        <!-- This is for SVM dependency -->
-                        <compilerArg>--add-reads=org.jboss.threads=ALL-UNNAMED</compilerArg>
-                    </compilerArgs>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.jboss.logging</groupId>
+                                    <artifactId>jboss-logging-processor</artifactId>
+                                    <version>${version.jboss.logging.tools}</version>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                            <compilerArgs>
+                                <compilerArg>--add-exports=java.base/jdk.internal.vm=ALL-UNNAMED,org.jboss.threads</compilerArg>
+                            </compilerArgs>
+                            <source>21</source>
+                            <target>21</target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-virtual-threads</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <annotationProcessorPath>
+                                    <groupId>org.jboss.logging</groupId>
+                                    <artifactId>jboss-logging-processor</artifactId>
+                                    <version>${version.jboss.logging.tools}</version>
+                                </annotationProcessorPath>
+                            </annotationProcessorPaths>
+                            <excludes>
+                                <exclude>**/org/jboss/threads/virtual/*.java</exclude>
+                            </excludes>
+                            <release>17</release>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <release>17</release>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
