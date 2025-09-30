@@ -268,7 +268,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nxrm3-maven-plugin</artifactId>
-                        <version>1.0.12</version>
+                        <version>1.0.13</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>jboss-common</serverId>
