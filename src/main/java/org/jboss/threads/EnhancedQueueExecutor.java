@@ -28,6 +28,7 @@ import static java.util.concurrent.locks.LockSupport.*;
 import java.lang.management.ManagementFactory;
 import java.security.AccessControlContext;
 import java.security.PrivilegedAction;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -552,6 +553,22 @@ public final class EnhancedQueueExecutor extends AbstractExecutorService impleme
             this.keepAliveTime = keepAliveTime;
             this.keepAliveUnits = keepAliveUnits;
             return this;
+        }
+
+        /**
+         * Set the thread keep-alive time using a {@link Duration}.
+         * <p>
+         * This method was added to provide API compatibility with Infinispan 15.0.19+, which uses
+         * the Duration-based API. It delegates to {@link #setKeepAliveTime(long, TimeUnit)}.
+         *
+         * @param keepAliveTime the thread keep-alive time (must not be {@code null})
+         * @return this builder
+         * @see EnhancedQueueExecutor#setKeepAliveTime(long, TimeUnit)
+         * @see EnhancedQueueExecutor#setKeepAliveTime(Duration)
+         */
+        public Builder setKeepAliveTime(final Duration keepAliveTime) {
+            Assert.checkNotNullParam("keepAliveTime", keepAliveTime);
+            return setKeepAliveTime(keepAliveTime.toNanos(), TimeUnit.NANOSECONDS);
         }
 
         /**
@@ -1171,6 +1188,23 @@ public final class EnhancedQueueExecutor extends AbstractExecutorService impleme
         Assert.checkMinimumParameter("keepAliveTime", 1L, keepAliveTime);
         Assert.checkNotNullParam("keepAliveUnits", keepAliveUnits);
         timeoutNanos = max(1L, keepAliveUnits.toNanos(keepAliveTime));
+    }
+
+    /**
+     * Set the thread keep-alive time using a {@link Duration}. This is the minimum length of time that idle threads
+     * should remain until they exit. Unless core threads are allowed to time out, threads will only exit if the
+     * current thread count exceeds the core limit.
+     * <p>
+     * This method was added to provide API compatibility with Infinispan 15.0.19+, which uses
+     * the Duration-based API. It delegates to {@link #setKeepAliveTime(long, TimeUnit)}.
+     *
+     * @param keepAliveTime the thread keep-alive time (must not be {@code null})
+     * @see Builder#setKeepAliveTime(Duration) Builder.setKeepAliveTime()
+     * @see #setKeepAliveTime(long, TimeUnit)
+     */
+    public void setKeepAliveTime(final Duration keepAliveTime) {
+        Assert.checkNotNullParam("keepAliveTime", keepAliveTime);
+        setKeepAliveTime(keepAliveTime.toNanos(), TimeUnit.NANOSECONDS);
     }
 
     /**
