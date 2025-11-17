@@ -27,7 +27,7 @@
     <groupId>org.jboss.threads</groupId>
     <artifactId>jboss-threads</artifactId>
     <packaging>jar</packaging>
-    <version>999-SNAPSHOT</version>
+    <version>3.9.2</version>
 
     <name>JBoss Threads</name>
     <description>Thread pool implementations and threading utilities</description>
