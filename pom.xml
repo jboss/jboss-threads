@@ -69,8 +69,7 @@
 
         <version.jboss.logging.tools>3.0.4.Final</version.jboss.logging.tools>
 
-        <nexus.url>https://repository.jboss.org/nexus3</nexus.url>
-        <nexus.repo>jboss-common</nexus.repo>
+        <nexus.repository.release>jboss-common</nexus.repository.release>
 
         <maven.compiler.release>17</maven.compiler.release>
     </properties>
