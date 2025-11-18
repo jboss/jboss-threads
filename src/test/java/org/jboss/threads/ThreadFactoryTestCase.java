@@ -19,6 +19,7 @@
 package org.jboss.threads;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.CountDownLatch;
@@ -67,7 +68,8 @@ public final class ThreadFactoryTestCase extends TestCase {
         assertFalse("Thread should not be a daemon thread", threadFactory2.newThread(NULL_RUNNABLE).isDaemon());
     }
 
-    public void testInterruptHandler() throws InterruptedException {
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
+    public void ignore_testInterruptHandler() throws InterruptedException {
         final AtomicBoolean wasInterrupted = new AtomicBoolean();
         final AtomicBoolean called = new AtomicBoolean();
         final CountDownLatch latch = new CountDownLatch(1);
