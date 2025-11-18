@@ -18,6 +18,7 @@
 
 package org.jboss.threads;
 
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -395,5 +396,33 @@ public class EnhancedThreadQueueExecutorTestCase {
         }
         executor.shutdown();
         Assert.assertTrue(terminateLatch.await(10, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Test that the Duration-based setKeepAliveTime method works correctly.
+     * This verifies compatibility with Infinispan 15.0.19+ which uses Duration API.
+     */
+    @Test
+    public void testSetKeepAliveTimeWithDuration() throws Exception {
+        // Test Builder.setKeepAliveTime(Duration)
+        EnhancedQueueExecutor executor = new EnhancedQueueExecutor.Builder()
+                .setCorePoolSize(coreSize)
+                .setMaximumPoolSize(maxSize)
+                .setKeepAliveTime(Duration.ofMillis(keepaliveTimeMillis))
+                .build();
+
+        // Verify the keepalive time was set correctly
+        long actualKeepAliveMillis = executor.getKeepAliveTime(TimeUnit.MILLISECONDS);
+        Assert.assertEquals("KeepAlive time should match the value set via Duration API",
+                keepaliveTimeMillis, actualKeepAliveMillis);
+
+        // Test runtime setKeepAliveTime(Duration) on the executor instance
+        long newKeepAliveMillis = 5000;
+        executor.setKeepAliveTime(Duration.ofMillis(newKeepAliveMillis));
+        actualKeepAliveMillis = executor.getKeepAliveTime(TimeUnit.MILLISECONDS);
+        Assert.assertEquals("KeepAlive time should match the value set via Duration API at runtime",
+                newKeepAliveMillis, actualKeepAliveMillis);
+
+        executor.shutdown();
     }
 }
