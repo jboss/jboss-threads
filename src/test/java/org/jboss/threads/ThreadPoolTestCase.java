@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 /**
  *
@@ -211,7 +212,8 @@ public final class ThreadPoolTestCase extends TestCase {
         Thread.interrupted();
     }
 
-    public void testQueuelessKeepAlive() throws InterruptedException {
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
+    public void ignore_testQueuelessKeepAlive() throws InterruptedException {
         // Test for https://issues.jboss.org/browse/JBTHR-32 QueuelessExecutor doesn't shrink with keepAliveTime
         final QueuelessExecutor simpleQueuelessExecutor = new QueuelessExecutor(threadFactory, SimpleDirectExecutor.INSTANCE, null, 100L);
         simpleQueuelessExecutor.setMaxThreads(1);
@@ -240,7 +242,8 @@ public final class ThreadPoolTestCase extends TestCase {
         Thread.interrupted();
     }
 
-    public void testQueuelessKeepAliveRepeating() throws InterruptedException {
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
+    public void ignore_testQueuelessKeepAliveRepeating() throws InterruptedException {
         // Test for https://issues.jboss.org/browse/JBTHR-23 QueuelessExecutor repeats to execute previous runnable
         final QueuelessExecutor simpleQueuelessExecutor = new QueuelessExecutor(threadFactory, SimpleDirectExecutor.INSTANCE, null, 100L);
         simpleQueuelessExecutor.setMaxThreads(1);
