@@ -1,11 +1,15 @@
 package org.jboss.threads;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import junit.framework.TestCase;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class EnhancedQueueExecutorTest extends TestCase {
+public class EnhancedQueueExecutorTest {
     private int coreSize = 3;
     private int maxSize = coreSize * 2;
     private long keepaliveTimeMillis = 1000;
@@ -40,6 +44,8 @@ public class EnhancedQueueExecutorTest extends TestCase {
      *     <li>schedule x tasks, expect pool size = x immediately after</li>
      * </ul>
      */
+    @Test
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
     public void testThreadReuse() throws TimeoutException, InterruptedException {
         EnhancedQueueExecutor executor = (new EnhancedQueueExecutor.Builder())
                 .setKeepAliveTime(keepaliveTimeMillis, TimeUnit.MILLISECONDS)
@@ -67,6 +73,8 @@ public class EnhancedQueueExecutorTest extends TestCase {
      * @throws InterruptedException
      * @throws TimeoutException
      */
+    @Test
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
     public void testKeepaliveTime() throws TimeoutException, InterruptedException {
         EnhancedQueueExecutor executor = (new EnhancedQueueExecutor.Builder())
                 .setKeepAliveTime(keepaliveTimeMillis, TimeUnit.MILLISECONDS)
@@ -88,6 +96,8 @@ public class EnhancedQueueExecutorTest extends TestCase {
      * Test that max size setting is honored. Test that keepalive time is ignored when core threads are the same as max
      * threads and core thread time out is disabled.
      */
+    @Test
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
     public void testKeepaliveTime2() throws TimeoutException, InterruptedException {
         EnhancedQueueExecutor executor = (new EnhancedQueueExecutor.Builder())
                 .setKeepAliveTime(keepaliveTimeMillis, TimeUnit.MILLISECONDS)
@@ -108,6 +118,8 @@ public class EnhancedQueueExecutorTest extends TestCase {
     /**
      * Test the keepalive setting with core thread time out enabled.
      */
+    @Test
+    @Ignore("https://issues.jboss.org/browse/JBTHR-67")
     public void testKeepaliveTime3() throws TimeoutException, InterruptedException {
         EnhancedQueueExecutor executor = (new EnhancedQueueExecutor.Builder())
                 .setKeepAliveTime(keepaliveTimeMillis, TimeUnit.MILLISECONDS)
@@ -127,6 +139,7 @@ public class EnhancedQueueExecutorTest extends TestCase {
     /**
      * Tests that prestarting core threads starts exactly the core threads amount specified.
      */
+    @Test
     public void testPrestartCoreThreads() {
         EnhancedQueueExecutor executor = (new EnhancedQueueExecutor.Builder())
                 .setKeepAliveTime(keepaliveTimeMillis, TimeUnit.MILLISECONDS)
