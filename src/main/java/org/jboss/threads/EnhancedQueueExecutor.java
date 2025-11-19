@@ -85,7 +85,9 @@ public final class EnhancedQueueExecutor extends AbstractExecutorService impleme
     private static final VarHandle peakQueueSizeHandle = ConstantBootstraps.fieldVarHandle(lookup(), "peakQueueSize", VarHandle.class, EnhancedQueueExecutor.class, int.class);
 
     static {
-        Version.getVersionString();
+        if (VersionLogging.shouldLogVersion()) {
+            Version.getVersionString();
+        }
         MBeanUnregisterAction.forceInit();
     }
 
