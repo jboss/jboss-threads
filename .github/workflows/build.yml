@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - name: Check out project
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Set up JDKs
       uses: actions/setup-java@v5
