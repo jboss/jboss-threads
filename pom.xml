@@ -146,7 +146,7 @@
         <dependency>
             <groupId>org.jboss.logmanager</groupId>
             <artifactId>jboss-logmanager</artifactId>
-            <version>3.2.1.Final</version>
+            <version>3.2.2.Final</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
