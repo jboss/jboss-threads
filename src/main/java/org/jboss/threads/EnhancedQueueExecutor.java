@@ -1016,7 +1016,10 @@ public final class EnhancedQueueExecutor extends EnhancedQueueExecutorBase6 impl
             // a marker to indicate that termination was requested
             for (;;) {
                 tailNext = tail.getNext();
-                if (tailNext instanceof TaskNode) {
+                if (tailNext == tail) {
+                    // we raced with shutdownNow, and now we're in a pickle! re-get tail & retry
+                    tail = getTail();
+                } else if (tailNext instanceof TaskNode) {
                     tail = (TaskNode) tailNext;
                 } else if (tailNext instanceof PoolThreadNode || tailNext == null) {
                     // remove the entire chain from this point
