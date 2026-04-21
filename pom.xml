@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>nativeimage</artifactId>
-            <version>25.0.2</version>
+            <version>25.0.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
