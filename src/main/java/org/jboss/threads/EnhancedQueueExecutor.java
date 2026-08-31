@@ -355,6 +355,8 @@ public final class EnhancedQueueExecutor extends EnhancedQueueExecutorBase6 impl
         this.exceptionHandler = builder.getExceptionHandler();
         this.threadFactory = builder.getThreadFactory();
         this.schedulerThread = threadFactory.newThread(schedulerTask);
+        // the scheduler thread does not need a TCCL - it's just a source of leaks
+        schedulerThread.setContextClassLoader(null);
         String schedulerName = this.schedulerThread.getName();
         this.schedulerThread.setName(schedulerName + " (scheduler)");
         this.terminationTask = builder.getTerminationTask();
