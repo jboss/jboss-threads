@@ -5,6 +5,7 @@ import static java.lang.invoke.MethodHandles.*;
 import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import org.jboss.logging.BasicLogger;
@@ -61,6 +62,21 @@ interface Messages extends BasicLogger {
 //    @Message(id = 13, value = "No executors available to run task")
 
 //    @Message(id = 14, value = "Error submitting task %s to executor")
+
+    @Message(id = 15, value = "Queue limit reached")
+    RejectedExecutionException queueLimitReached();
+
+    @Message(id = 16, value = "Capacity limit reached")
+    RejectedExecutionException capacityLimitReached();
+
+    @Message(id = 17, value = "Capacity limit must be greater than or equal to queue limit when capacity limit is non-zero")
+    IllegalArgumentException capacityLimitMustBeGreaterThanQueueLimit();
+
+    @Message(id = 18, value = "Scheduled executor service used a caller-runs policy, which is not supported")
+    RejectedExecutionException callerRunsNotSupported();
+
+    @Message(id = 19, value = "No executor queue space remaining")
+    RejectedExecutionException noQueueSpaceRemaining();
 
     // validation
 
