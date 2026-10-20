@@ -304,12 +304,13 @@ final class SimpleViewExecutor extends ViewExecutor {
 
     @Override
     public List<Runnable> shutdownNow() {
-        // Set shutdown + interrupt, and zero the submitted count atomically
+        // Set shutdown + interrupt atomically
         long snapshot = (long) stateHandle.getVolatile(this);
-        int submittedCount;
         for (;;) {
-            submittedCount = getSubmitted(snapshot);
-            long newState = (snapshot & ~(SUBMITTED_MASK)) | SHUTDOWN_MASK | INTERRUPT_MASK;
+            if (isShutdown(snapshot) && isInterrupt(snapshot)) {
+                break;
+            }
+            long newState = snapshot | SHUTDOWN_MASK | INTERRUPT_MASK;
             long witness = casState(snapshot, newState);
             if (witness == snapshot) {
                 interruptRunningTasks();
@@ -320,10 +321,11 @@ final class SimpleViewExecutor extends ViewExecutor {
         }
         // Collect submitted-but-not-started tasks if tracking is enabled
         final Set<TaskWrapper> submittedTasks = this.submittedTasks;
-        if (submittedTasks != null && submittedCount > 0) {
+        if (submittedTasks != null) {
             final ArrayList<Runnable> result = new ArrayList<>();
             for (TaskWrapper wrapper : submittedTasks) {
                 if (wrapper.cancel()) {
+                    decrementSubmitted();
                     result.add(wrapper.delegate);
                 }
             }
@@ -525,6 +527,13 @@ final class SimpleViewExecutor extends ViewExecutor {
      */
     private final class TaskWrapper implements Runnable {
 
+        private static final int ST_SUBMITTED = 0;
+        private static final int ST_RUNNING = 1;
+        private static final int ST_CANCELLED = 2;
+
+        private static final VarHandle statusHandle = ConstantBootstraps.fieldVarHandle(
+                MethodHandles.lookup(), "status", VarHandle.class, TaskWrapper.class, int.class);
+
         /**
          * The delegate task to execute.
          * Safely published via the delegate executor's submission mechanism.
@@ -544,14 +553,16 @@ final class SimpleViewExecutor extends ViewExecutor {
          */
         private Thread thread;
 
-        /**
-         * Set to {@code true} when this task has been cancelled by {@link #shutdownNow()}.
-         */
-        private volatile boolean cancelled;
+        @SuppressWarnings("unused") // accessed via VarHandle
+        private volatile int status;
 
         TaskWrapper(final Runnable delegate, final ClassLoader contextClassLoader) {
             this.delegate = delegate;
             this.contextClassLoader = contextClassLoader;
+        }
+
+        private boolean compareAndSetStatus(int expect, int update) {
+            return statusHandle.compareAndSet(this, expect, update);
         }
 
         @Override
@@ -560,6 +571,12 @@ final class SimpleViewExecutor extends ViewExecutor {
             final Set<TaskWrapper> submittedTasks = SimpleViewExecutor.this.submittedTasks;
             if (submittedTasks != null) {
                 submittedTasks.remove(this);
+            }
+
+            // Try to transition status from ST_SUBMITTED to ST_RUNNING
+            if (!compareAndSetStatus(ST_SUBMITTED, ST_RUNNING)) {
+                // Already cancelled by shutdownNow()
+                return;
             }
 
             // Transition: submitted -= 1, running += 1
@@ -573,13 +590,6 @@ final class SimpleViewExecutor extends ViewExecutor {
                     break;
                 }
                 snapshot = witness;
-            }
-
-            // Check for cancellation (set by shutdownNow after zeroing submitted count)
-            if (cancelled) {
-                // Undo the running increment — we're not actually running
-                decrementRunning();
-                return;
             }
 
             // Check shutdown + interrupt: skip payload if interrupted
@@ -636,14 +646,12 @@ final class SimpleViewExecutor extends ViewExecutor {
          * @return {@code true} if the task was cancelled by this call
          */
         boolean cancel() {
-            if (cancelled) {
-                return false;
+            if (compareAndSetStatus(ST_SUBMITTED, ST_CANCELLED)) {
+                delegate = null;
+                contextClassLoader = null;
+                return true;
             }
-            cancelled = true;
-            Runnable d = delegate;
-            delegate = null;
-            contextClassLoader = null;
-            return d != null;
+            return false;
         }
 
         /**
@@ -672,6 +680,22 @@ final class SimpleViewExecutor extends ViewExecutor {
         long snapshot = (long) stateHandle.getVolatile(this);
         for (;;) {
             long newState = snapshot - RUNNING_ONE;
+            long witness = casState(snapshot, newState);
+            if (witness == snapshot) {
+                notifyTermination(newState);
+                return;
+            }
+            snapshot = witness;
+        }
+    }
+
+    /**
+     * Decrement the submitted count in the state word and check for termination.
+     */
+    private void decrementSubmitted() {
+        long snapshot = (long) stateHandle.getVolatile(this);
+        for (;;) {
+            long newState = snapshot - SUBMITTED_ONE;
             long witness = casState(snapshot, newState);
             if (witness == snapshot) {
                 notifyTermination(newState);
